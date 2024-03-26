@@ -41,6 +41,8 @@ export const RoundedCornersEffect = GObject.registerClass (
      */
     static uniforms: Uniforms = new Uniforms ()
 
+    private loaded = false
+
     /**
      * Collect location of uniform variants, only used when added shader
      * snippet to effect.
@@ -60,12 +62,13 @@ export const RoundedCornersEffect = GObject.registerClass (
         if (!Effect.uniforms) return
         Effect.uniforms[k as keyof Uniforms] = this.get_uniform_location (k)
       })
+      this.loaded = true
     }
 
     vfunc_build_pipeline (): void {
       const type = Shell.SnippetHook.FRAGMENT
       this.add_glsl_snippet (type, declarations, code, false)
-      this._init_uniforms ()
+      //this._init_uniforms ()
     }
 
     vfunc_paint_target (node: Clutter.PaintNode, ctx: Clutter.PaintContext) {
@@ -91,6 +94,9 @@ export const RoundedCornersEffect = GObject.registerClass (
       } = { width: 0, color: [0, 0, 0, 0] },
       pixel_step?: [number, number]
     ) {
+      if (!this.loaded) {
+        this._init_uniforms ()
+      }
       const border_width = border.width * scale_factor
       const border_color = border.color
 
